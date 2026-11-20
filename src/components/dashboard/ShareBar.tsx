@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export function ShareBar({ url, views, clicks }: { url: string; views: number; clicks: number }) {
+export function ShareBar({ url, views, clicks, taps }: { url: string; views: number; clicks: number; taps: number }) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -28,8 +28,8 @@ export function ShareBar({ url, views, clicks }: { url: string; views: number; c
         </button>
       </div>
       <p className="mt-4 text-sm text-white/75">
-        {views.toLocaleString()} page {views === 1 ? "view" : "views"}, {clicks.toLocaleString()} link{" "}
-        {clicks === 1 ? "click" : "clicks"}
+        {views.toLocaleString()} page {views === 1 ? "view" : "views"}, {taps.toLocaleString()} card{" "}
+        {taps === 1 ? "tap" : "taps"}, {clicks.toLocaleString()} link {clicks === 1 ? "click" : "clicks"}
       </p>
     </div>
   );

@@ -9,10 +9,11 @@ import { AddLinkForm } from "./AddLinkForm";
 import { LinkList } from "./LinkList";
 import { ProfileForm } from "./ProfileForm";
 import { ShareBar } from "./ShareBar";
+import { CardPanel } from "./CardPanel";
 
-type Props = { initialProfile: DashboardProfile; initialLinks: DashboardLink[]; appUrl: string };
+type Props = { initialProfile: DashboardProfile; initialLinks: DashboardLink[]; appUrl: string; isAdmin?: boolean };
 
-export function Dashboard({ initialProfile, initialLinks, appUrl }: Props) {
+export function Dashboard({ initialProfile, initialLinks, appUrl, isAdmin = false }: Props) {
   const [profile, setProfile] = useState(initialProfile);
   const [links, setLinks] = useState(initialLinks);
   const publicUrl = `${appUrl}/${profile.username}`;
@@ -24,6 +25,7 @@ export function Dashboard({ initialProfile, initialLinks, appUrl }: Props) {
         <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3">
           <Logo />
           <div className="ml-auto flex items-center gap-1">
+            {isAdmin && <a href="/dashboard/bookings" className="btn-ghost">Bookings</a>}
             <a href={`/${profile.username}`} target="_blank" rel="noopener noreferrer" className="btn-ghost">
               View page
             </a>
@@ -36,7 +38,7 @@ export function Dashboard({ initialProfile, initialLinks, appUrl }: Props) {
 
       <main className="mx-auto grid max-w-6xl gap-10 px-4 py-8 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-10">
-          <ShareBar url={publicUrl} views={profile.views} clicks={totalClicks} />
+          <ShareBar url={publicUrl} views={profile.views} clicks={totalClicks} taps={profile.cardTaps} />
 
           <section aria-labelledby="links-heading" className="space-y-4">
             <h2 id="links-heading" className="font-display text-2xl font-bold text-primary">Links</h2>
@@ -47,6 +49,11 @@ export function Dashboard({ initialProfile, initialLinks, appUrl }: Props) {
           <section aria-labelledby="profile-heading" className="space-y-4">
             <h2 id="profile-heading" className="font-display text-2xl font-bold text-primary">Profile</h2>
             <ProfileForm profile={profile} appUrl={appUrl} onSaved={setProfile} />
+          </section>
+
+          <section aria-labelledby="card-heading" className="space-y-4">
+            <h2 id="card-heading" className="font-display text-2xl font-bold text-primary">Your NFC card</h2>
+            <CardPanel cardUrl={`${appUrl}/c/${profile.id}`} />
           </section>
         </div>
 
