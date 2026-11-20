@@ -1,6 +1,8 @@
 # LinkNest
 
-A Linktree-style app: each user gets one public page (`/username`) holding all their links.
+Smart NFC business cards backed by a Linktree-style profile. Each user gets one public page (`/username`);
+their NFC card or social media tag is programmed with `/c/<user id>`, so tapping it on a phone pops up a
+notification that opens the profile.
 Built with Next.js 15 (App Router, TypeScript), PostgreSQL, Prisma ORM and Tailwind CSS.
 
 Brand colors: primary `#164E63`, secondary `#5EEAD4` (see `tailwind.config.ts`).
@@ -8,11 +10,17 @@ Brand colors: primary `#164E63`, secondary `#5EEAD4` (see `tailwind.config.ts`).
 ## Features
 
 - Sign up and log in (bcrypt-hashed passwords, signed HTTP-only session cookie)
+- Forgot password: one-time reset link by email (via Resend; printed in the terminal when `RESEND_API_KEY` is empty)
 - Claim a username; your page lives at `/your-username`
 - Add, edit, delete, hide/show and reorder links
 - Live phone preview in the dashboard
 - Page-view and per-link click counting (clicks go through `/go/:id`)
-- Profile: name, username, bio, photo link
+- Profile: name, username, bio, photo upload (cropped and resized in the browser) or photo link
+- Links by type (Instagram, LinkedIn, WhatsApp, TikTok, email, phone, location…), each shown with its icon;
+  handles and phone numbers are turned into full URLs
+- NFC card link `/c/:id` that survives username changes and counts card taps
+- Landing page with pricing (Business Smart Card 10,000 RWF, Social Media Tag 5,000 RWF) and a booking form;
+  staff listed in `ADMIN_EMAILS` see bookings at `/dashboard/bookings`
 - Input validation with Zod on every API route; unsafe URLs such as `javascript:` are rejected
 
 ## Getting started
@@ -76,14 +84,18 @@ src/
 | POST | `/api/auth/register` | Create account `{ email, username, password }` |
 | POST | `/api/auth/login` | Log in `{ email, password }` |
 | POST | `/api/auth/logout` | Log out |
+| POST | `/api/auth/forgot-password` | Email a 1-hour reset link `{ email }` (same answer whether or not the account exists) |
+| POST | `/api/auth/reset-password` | Set a new password from the link `{ token, password }`, then log in |
 | GET | `/api/links` | List your links |
-| POST | `/api/links` | Create `{ title, url }` |
-| PATCH | `/api/links/:id` | Update `{ title?, url?, isActive? }` |
+| POST | `/api/links` | Create `{ platform?, title?, url }` |
+| PATCH | `/api/links/:id` | Update `{ platform?, title?, url?, isActive? }` |
 | DELETE | `/api/links/:id` | Delete a link |
 | PUT | `/api/links/reorder` | Save order `{ ids: string[] }` |
 | GET | `/api/profile` | Your profile |
 | PATCH | `/api/profile` | Update `{ username?, displayName?, bio?, avatarUrl? }` |
 | GET | `/go/:id` | Public: count a click and redirect |
+| GET | `/c/:userId` | Public: NFC card target. Counts a tap and redirects to the profile |
+| POST | `/api/bookings` | Public: book a card `{ product, quantity, name, phone, email?, message? }` |
 
 All `/api/links` and `/api/profile` routes require a session and only touch the signed-in user's data.
 
@@ -97,7 +109,8 @@ All `/api/links` and `/api/profile` routes require a session and only touch the 
 ## Ideas for next steps
 
 - Drag-and-drop reordering (e.g. `@dnd-kit`)
-- Image uploads for profile photos instead of a link
-- Themes per user, social icon row, scheduled links
+- Move uploaded photos to object storage if they grow beyond small avatars
+- "Save contact" (vCard) button on profiles
+- Themes per user, scheduled links
 - Rate limiting on login and the `/go` counter
 - Analytics by day and by referrer
