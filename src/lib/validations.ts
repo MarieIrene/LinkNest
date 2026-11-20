@@ -1,9 +1,12 @@
 import { z } from "zod";
+import { PRODUCT_IDS } from "./products";
+import { PLATFORM_IDS, getPlatform, toPlatformUrl } from "./platforms";
 
 // Paths used by the app itself; nobody can claim these as a username.
 export const RESERVED_USERNAMES = new Set([
   "login", "register", "logout", "dashboard", "api", "go", "admin", "settings",
-  "about", "help", "terms", "privacy", "icon.svg", "favicon.ico", "_next",
+  "about", "help", "terms", "privacy", "icon.svg", "favicon.ico", "_next", "c",
+  "forgot-password", "reset-password",
 ]);
 
 export const usernameSchema = z
@@ -32,17 +35,9 @@ export function normalizeUrl(raw: string): string | null {
   }
 }
 
-const linkUrlSchema = z
-  .string()
-  .max(2048, "That address is too long.")
-  .transform((value, ctx) => {
-    const url = normalizeUrl(value);
-    if (!url) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Enter a full web address, like example.com/page." });
-      return z.NEVER;
-    }
-    return url;
-  });
+/** Photos uploaded from the dashboard are resized in the browser and stored as data URLs. */
+export const UPLOADED_AVATAR = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/;
+const MAX_AVATAR_LENGTH = 400_000;
 
 const emailSchema = z.string().trim().toLowerCase().email("Enter a valid email address.");
 
@@ -60,14 +55,54 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Enter your password."),
 });
 
-export const createLinkSchema = z.object({
-  title: z.string().trim().min(1, "Give the link a title.").max(80, "Keep the title under 80 characters."),
-  url: linkUrlSchema,
+const newPasswordSchema = z.string().min(8, "Use at least 8 characters.").max(72, "Use 72 characters or fewer.");
+
+export const forgotPasswordSchema = z.object({ email: emailSchema });
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(20, "This reset link is incomplete.").max(200),
+  password: newPasswordSchema,
 });
 
-export const updateLinkSchema = createLinkSchema.partial().extend({
-  isActive: z.boolean().optional(),
-});
+const linkTitleSchema = z.string().trim().max(80, "Keep the title under 80 characters.");
+const platformSchema = z.enum(PLATFORM_IDS);
+const rawUrlSchema = z.string().max(2048, "That address is too long.");
+
+const badUrl = (ctx: z.RefinementCtx) =>
+  ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["url"], message: "Enter a full web address, like example.com/page." });
+
+/** New link: the title falls back to the platform name, and handles/numbers become full URLs. */
+export const createLinkSchema = z
+  .object({
+    platform: platformSchema.default("website"),
+    title: linkTitleSchema.optional(),
+    url: rawUrlSchema,
+  })
+  .transform((data, ctx) => {
+    const url = normalizeUrl(toPlatformUrl(data.platform, data.url));
+    if (!url) {
+      badUrl(ctx);
+      return z.NEVER;
+    }
+    return { platform: data.platform, title: data.title || getPlatform(data.platform).name, url };
+  });
+
+export const updateLinkSchema = z
+  .object({
+    platform: platformSchema.optional(),
+    title: linkTitleSchema.min(1, "Give the link a title.").optional(),
+    url: rawUrlSchema.optional(),
+    isActive: z.boolean().optional(),
+  })
+  .transform((data, ctx) => {
+    if (data.url === undefined) return { ...data, url: undefined };
+    const url = normalizeUrl(toPlatformUrl(data.platform, data.url));
+    if (!url) {
+      badUrl(ctx);
+      return z.NEVER;
+    }
+    return { ...data, url };
+  });
 
 export const reorderSchema = z.object({
   ids: z.array(z.string().min(1)).max(500),
@@ -80,7 +115,25 @@ export const profileSchema = z.object({
   avatarUrl: z
     .string()
     .trim()
-    .max(500)
-    .refine((v) => v === "" || /^https:\/\/\S+$/.test(v), "Use an image link that starts with https://.")
+    .max(MAX_AVATAR_LENGTH, "That photo is too large. Try a smaller one.")
+    .refine(
+      (v) => v === "" || /^https:\/\/\S+$/.test(v) || UPLOADED_AVATAR.test(v),
+      "Upload a photo or use an image link that starts with https://.",
+    )
     .optional(),
+});
+
+export const bookingSchema = z.object({
+  product: z.enum(PRODUCT_IDS, { message: "Choose a product." }),
+  quantity: z.coerce.number().int().min(1, "Order at least 1.").max(500, "For more than 500, call us."),
+  name: z.string().trim().min(2, "Enter your name.").max(80, "Keep your name under 80 characters."),
+  phone: z
+    .string()
+    .trim()
+    .max(30)
+    .regex(/^\+?[\d\s()-]{9,}$/, "Enter a phone number we can call, like 0788 000 000."),
+  email: z.union([z.literal(""), emailSchema]).optional(),
+  message: z.string().trim().max(500, "Keep the note under 500 characters.").optional(),
+  /** Honeypot: real visitors never see or fill this field. */
+  company: z.string().max(0).optional(),
 });

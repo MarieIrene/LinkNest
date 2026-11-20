@@ -4,7 +4,7 @@ import { getCurrentUserId } from "@/lib/auth";
 import { jsonError, readJson, unauthorized, zodFields } from "@/lib/api";
 import { createLinkSchema } from "@/lib/validations";
 
-const linkSelect = { id: true, title: true, url: true, isActive: true, clicks: true, position: true };
+const linkSelect = { id: true, title: true, url: true, platform: true, isActive: true, clicks: true, position: true };
 
 export async function GET() {
   const userId = await getCurrentUserId();

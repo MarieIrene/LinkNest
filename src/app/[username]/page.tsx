@@ -18,7 +18,7 @@ const getProfile = cache(async (raw: string) => {
       displayName: true,
       bio: true,
       avatarUrl: true,
-      links: { where: { isActive: true }, orderBy: { position: "asc" }, select: { id: true, title: true, url: true } },
+      links: { where: { isActive: true }, orderBy: { position: "asc" }, select: { id: true, title: true, url: true, platform: true } },
     },
   });
 });
@@ -27,10 +27,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const user = await getProfile((await params).username);
   if (!user) return { title: "Page not found" };
   const name = user.displayName || user.username;
+  // Uploaded photos are data URLs, which link previews can't load.
+  const image = user.avatarUrl?.startsWith("https://") ? [user.avatarUrl] : undefined;
+  // This title and description are what phones show when someone taps the NFC card.
   return {
-    title: `${name} (@${user.username})`,
-    description: user.bio ?? `All of ${name}'s links in one place.`,
-    openGraph: { title: name, description: user.bio ?? undefined, images: user.avatarUrl ? [user.avatarUrl] : undefined },
+    title: { absolute: name },
+    description: user.bio ?? `Contact details and links for ${name}.`,
+    openGraph: { title: name, description: user.bio ?? undefined, images: image, type: "profile" },
   };
 }
 

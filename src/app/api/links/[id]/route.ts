@@ -22,7 +22,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
 
   const link = await prisma.link.findUnique({
     where: { id },
-    select: { id: true, title: true, url: true, isActive: true, clicks: true, position: true },
+    select: { id: true, title: true, url: true, platform: true, isActive: true, clicks: true, position: true },
   });
   return NextResponse.json({ link });
 }

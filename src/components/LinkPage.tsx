@@ -1,5 +1,6 @@
 import { Avatar } from "./Avatar";
 import { APP_NAME } from "@/lib/site";
+import { PlatformIcon } from "@/lib/platforms";
 import type { PublicLink } from "@/lib/types";
 
 type Props = {
@@ -31,9 +32,11 @@ export function LinkPage({ username, displayName, bio, avatarUrl, links, mode = 
                 href={mode === "live" ? `/go/${link.id}` : link.url}
                 target={mode === "preview" ? "_blank" : undefined}
                 rel="noopener noreferrer"
-                className="btn-press w-full break-words px-6 py-4 text-center text-base"
+                className="btn-press w-full gap-3 break-words py-3 pl-3 pr-6 text-left text-base"
               >
-                {link.title}
+                <PlatformIcon id={link.platform} size={36} />
+                <span className="min-w-0 flex-1 text-center">{link.title}</span>
+                <span aria-hidden="true" className="w-6 shrink-0" />
               </a>
             </li>
           ))}

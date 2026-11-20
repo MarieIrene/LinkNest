@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { apiRequest } from "@/lib/client-api";
+import { PLATFORM_IDS, PLATFORMS, PlatformIcon, getPlatform } from "@/lib/platforms";
 import type { DashboardLink } from "@/lib/types";
 
 type Props = {
@@ -17,6 +18,7 @@ export function LinkRow({ link, isFirst, isLast, onMove, onChange, onDelete }: P
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(link.title);
   const [url, setUrl] = useState(link.url);
+  const [platform, setPlatform] = useState(link.platform);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [rowError, setRowError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -25,7 +27,7 @@ export function LinkRow({ link, isFirst, isLast, onMove, onChange, onDelete }: P
     e.preventDefault();
     setPending(true);
     setErrors({});
-    const res = await apiRequest<{ link: DashboardLink }>(`/api/links/${link.id}`, { method: "PATCH", body: { title, url } });
+    const res = await apiRequest<{ link: DashboardLink }>(`/api/links/${link.id}`, { method: "PATCH", body: { platform, title, url } });
     setPending(false);
     if (!res.ok) {
       setErrors(res.fields);
@@ -57,6 +59,7 @@ export function LinkRow({ link, isFirst, isLast, onMove, onChange, onDelete }: P
   function cancel() {
     setTitle(link.title);
     setUrl(link.url);
+    setPlatform(link.platform);
     setErrors({});
     setEditing(false);
   }
@@ -66,13 +69,22 @@ export function LinkRow({ link, isFirst, isLast, onMove, onChange, onDelete }: P
       {editing ? (
         <form onSubmit={save} noValidate className="space-y-4">
           <div>
+            <label htmlFor={`platform-${link.id}`} className="label">Type</label>
+            <div className="flex items-center gap-3">
+              <PlatformIcon id={platform} size={40} />
+              <select id={`platform-${link.id}`} value={platform} onChange={(e) => setPlatform(e.target.value)} className="field">
+                {PLATFORM_IDS.map((id) => <option key={id} value={id}>{PLATFORMS[id].name}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
             <label htmlFor={`title-${link.id}`} className="label">Title</label>
             <input id={`title-${link.id}`} value={title} onChange={(e) => setTitle(e.target.value)}
               className={`field ${errors.title ? "field-error" : ""}`} aria-invalid={Boolean(errors.title)} />
             {errors.title && <p className="error-text">{errors.title}</p>}
           </div>
           <div>
-            <label htmlFor={`url-${link.id}`} className="label">URL</label>
+            <label htmlFor={`url-${link.id}`} className="label">{getPlatform(platform).inputLabel}</label>
             <input id={`url-${link.id}`} value={url} onChange={(e) => setUrl(e.target.value)} inputMode="url" spellCheck={false}
               className={`field ${errors.url ? "field-error" : ""}`} aria-invalid={Boolean(errors.url)} />
             {errors.url && <p className="error-text">{errors.url}</p>}
@@ -92,6 +104,8 @@ export function LinkRow({ link, isFirst, isLast, onMove, onChange, onDelete }: P
               <path d="M6 9l6 6 6-6" />
             </IconButton>
           </div>
+
+          <PlatformIcon id={link.platform} size={40} className="mt-1" />
 
           <div className="min-w-0 flex-1">
             <p className="truncate font-semibold text-ink">{link.title}</p>
