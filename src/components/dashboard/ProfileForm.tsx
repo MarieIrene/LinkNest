@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import { Avatar } from "@/components/Avatar";
 import { apiRequest } from "@/lib/client-api";
 import type { DashboardProfile } from "@/lib/types";
 
@@ -16,6 +17,40 @@ export function ProfileForm({ profile, appUrl, onSaved }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [formError, setFormError] = useState<string | null>(null);
+
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [photoNote, setPhotoNote] = useState<string | null>(null);
+  const isUploaded = values.avatarUrl.startsWith("data:");
+  const [linkOpen] = useState(Boolean(profile.avatarUrl) && !profile.avatarUrl?.startsWith("data:"));
+
+  async function onPickPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setErrors((prev) => ({ ...prev, avatarUrl: "" }));
+    if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({ ...prev, avatarUrl: "Choose an image file (JPG, PNG or WebP)." }));
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, avatarUrl: "That file is over 15 MB. Choose a smaller photo." }));
+      return;
+    }
+    try {
+      const dataUrl = await squarePhoto(file, 400);
+      setValues((v) => ({ ...v, avatarUrl: dataUrl }));
+      setPhotoNote("New photo ready. Save your profile to publish it.");
+      setStatus("idle");
+    } catch {
+      setErrors((prev) => ({ ...prev, avatarUrl: "We couldn't read that photo. Try a JPG or PNG." }));
+    }
+  }
+
+  function removePhoto() {
+    setValues((v) => ({ ...v, avatarUrl: "" }));
+    setPhotoNote("Photo removed. Save your profile to apply it.");
+    setStatus("idle");
+  }
 
   const update = (key: keyof typeof values) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setValues((v) => ({ ...v, [key]: e.target.value }));
@@ -35,6 +70,7 @@ export function ProfileForm({ profile, appUrl, onSaved }: Props) {
       return;
     }
     onSaved(res.data.profile);
+    setPhotoNote(null);
     setValues((v) => ({ ...v, username: res.data.profile.username }));
     setStatus("saved");
   }
@@ -71,12 +107,31 @@ export function ProfileForm({ profile, appUrl, onSaved }: Props) {
       </div>
 
       <div>
-        <label htmlFor="avatarUrl" className="label">Profile photo link</label>
-        <input id="avatarUrl" value={values.avatarUrl} onChange={update("avatarUrl")} inputMode="url" spellCheck={false}
-          placeholder="https://…/photo.jpg" className={`field ${errors.avatarUrl ? "field-error" : ""}`} />
-        <p className={errors.avatarUrl ? "error-text" : "mt-1.5 text-sm text-ink/55"}>
-          {errors.avatarUrl ?? "Leave empty to show your initials."}
+        <p className="label">Profile photo</p>
+        <div className="flex flex-wrap items-center gap-4">
+          <Avatar name={values.displayName || values.username} src={values.avatarUrl || null} size={80} />
+          <div className="flex flex-wrap gap-2">
+            <input ref={fileInput} id="avatarFile" type="file" accept="image/jpeg,image/png,image/webp,image/*"
+              onChange={onPickPhoto} className="sr-only" aria-describedby="avatar-hint" />
+            <button type="button" onClick={() => fileInput.current?.click()} className="btn-primary">
+              {values.avatarUrl ? "Change photo" : "Upload photo"}
+            </button>
+            {values.avatarUrl && (
+              <button type="button" onClick={removePhoto} className="btn-ghost text-red-700 hover:bg-red-50">Remove</button>
+            )}
+          </div>
+        </div>
+        <p id="avatar-hint" aria-live="polite" className={errors.avatarUrl ? "error-text" : "mt-2 text-sm text-ink/55"}>
+          {errors.avatarUrl || photoNote || "Choose a photo from your phone or computer. We crop it to a square. Leave empty to show your initials."}
         </p>
+
+        <details className="mt-3 text-sm" open={linkOpen}>
+          <summary className="cursor-pointer font-medium text-primary">Or use an image link</summary>
+          <label htmlFor="avatarUrl" className="sr-only">Profile photo link</label>
+          <input id="avatarUrl" value={isUploaded ? "" : values.avatarUrl} onChange={update("avatarUrl")} inputMode="url"
+            spellCheck={false} placeholder={isUploaded ? "Using your uploaded photo" : "https://…/photo.jpg"}
+            className="field mt-2" />
+        </details>
       </div>
 
       {formError && <p role="alert" className="error-text">{formError}</p>}
@@ -89,4 +144,30 @@ export function ProfileForm({ profile, appUrl, onSaved }: Props) {
       </div>
     </form>
   );
+}
+
+/** Center-crops an image to a square and shrinks it, so uploads stay small (~30 KB). */
+async function squarePhoto(file: File, size: number): Promise<string> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = reject;
+      el.src = url;
+    });
+    const side = Math.min(img.naturalWidth, img.naturalHeight);
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = Math.min(size, side);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas unavailable");
+    ctx.drawImage(
+      img,
+      (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side,
+      0, 0, canvas.width, canvas.height,
+    );
+    return canvas.toDataURL("image/jpeg", 0.85);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 }
