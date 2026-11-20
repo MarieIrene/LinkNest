@@ -8,8 +8,9 @@ const body = DM_Sans({ subsets: ["latin"], variable: "--font-body", display: "sw
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
-  title: { default: `${APP_NAME}: one link for everything you share`, template: `%s | ${APP_NAME}` },
-  description: "Create one page that holds all your links, then share a single URL anywhere.",
+  title: { default: `${APP_NAME}: smart NFC business cards`, template: `%s | ${APP_NAME}` },
+  description:
+    "Store your business profile on one smart NFC card. Tap it on a phone to share your contacts, social media and website instantly. Business Smart Card 10,000 RWF, Social Media Tag 5,000 RWF.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

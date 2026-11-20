@@ -47,7 +47,156 @@ body {
   }
 }
 
+/* ---------- Landing page motion ----------
+   Every animated element's resting style is a sensible final frame, so with
+   reduced motion (animations off, see below) the page still reads correctly. */
+
+html {
+  scroll-behavior: smooth;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float { animation: float 6s ease-in-out infinite; }
+
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -20px) scale(1.08); }
+}
+.animate-blob { animation: blob 14s ease-in-out infinite; }
+
+/* Hero demo: the card taps the phone, a notification pops up, the profile opens. One 9s loop. */
+.tap-card {
+  transform: rotate(-12deg);
+  animation: tap-card 9s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+}
+@keyframes tap-card {
+  0%, 6% { transform: translate(0, 0) rotate(-12deg); }
+  18%, 30% { transform: translate(var(--tap-x, 70px), var(--tap-y, -150px)) rotate(-2deg); }
+  42%, 100% { transform: translate(0, 0) rotate(-12deg); }
+}
+
+.nfc-wave {
+  opacity: 0;
+  animation: nfc-wave 9s ease-out infinite;
+}
+.nfc-wave:nth-child(2) { animation-delay: 0.3s; }
+.nfc-wave:nth-child(3) { animation-delay: 0.6s; }
+@keyframes nfc-wave {
+  0%, 17% { transform: scale(0.3); opacity: 0; }
+  19% { opacity: 0.9; }
+  33%, 100% { transform: scale(1.9); opacity: 0; }
+}
+
+.tap-notice {
+  transform: translateY(-140%);
+  opacity: 0;
+  animation: tap-notice 9s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+@keyframes tap-notice {
+  0%, 22% { transform: translateY(-140%); opacity: 0; }
+  27%, 43% { transform: translateY(0); opacity: 1; }
+  46% { transform: scale(0.96); opacity: 1; }
+  52%, 100% { transform: translateY(-140%); opacity: 0; }
+}
+
+.tap-touch {
+  opacity: 0;
+  animation: tap-touch 9s ease-out infinite;
+}
+@keyframes tap-touch {
+  0%, 42% { transform: scale(0.4); opacity: 0; }
+  44% { transform: scale(0.8); opacity: 0.7; }
+  50%, 100% { transform: scale(1.6); opacity: 0; }
+}
+
+.tap-profile { animation: tap-profile 9s cubic-bezier(0.2, 0.8, 0.2, 1) infinite; }
+@keyframes tap-profile {
+  0%, 47% { transform: translateY(102%); }
+  57%, 92% { transform: translateY(0); }
+  99%, 100% { transform: translateY(102%); }
+}
+
+/* A light sweep across the card surface. */
+.card-shine { position: relative; overflow: hidden; }
+.card-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.28) 50%, transparent 65%);
+  transform: translateX(-130%);
+  animation: shine 5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes shine {
+  0%, 55% { transform: translateX(-130%); }
+  85%, 100% { transform: translateX(130%); }
+}
+
+/* How it works: the three steps light up in turn. */
+.step-cycle { animation: step-cycle 7.5s ease-in-out infinite; }
+@keyframes step-cycle {
+  0%, 30% { transform: translateY(-6px); box-shadow: 0 0 0 2px #5eead4, 0 22px 44px -22px rgba(11, 47, 59, 0.5); }
+  38%, 100% { transform: none; box-shadow: 0 0 0 1px #cfe2e5; }
+}
+.step-progress {
+  transform-origin: left;
+  animation: step-progress 7.5s linear infinite;
+}
+@keyframes step-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.mini-tap { animation: mini-tap 2.5s ease-in-out infinite; }
+@keyframes mini-tap {
+  0%, 100% { transform: translateX(-26px) rotate(-10deg); }
+  40%, 60% { transform: translateX(0) rotate(-4deg); }
+}
+.mini-wave { animation: mini-wave 2.5s ease-out infinite; opacity: 0; }
+@keyframes mini-wave {
+  0%, 38% { transform: scale(0.4); opacity: 0; }
+  45% { opacity: 0.9; }
+  75%, 100% { transform: scale(1.6); opacity: 0; }
+}
+.mini-line {
+  transform-origin: left;
+  animation: mini-line 3s ease-out infinite;
+}
+@keyframes mini-line {
+  0%, 10% { transform: scaleX(0); opacity: 0; }
+  35%, 90% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+.mini-pick { animation: mini-pick 3s ease-in-out infinite; }
+@keyframes mini-pick {
+  0%, 45% { transform: translateY(-6px) scale(1.04); box-shadow: 0 0 0 3px #5eead4; }
+  50%, 100% { transform: none; box-shadow: none; }
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  70% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.animate-pop { animation: pop-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   *,
   *::before,
   *::after {
