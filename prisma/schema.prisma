@@ -16,7 +16,10 @@ model User {
   bio          String?
   avatarUrl    String?
   views        Int      @default(0)
+  /// Times someone opened the profile by tapping the NFC card (via /c/:id).
+  cardTaps     Int      @default(0)
   links        Link[]
+  resetTokens  PasswordResetToken[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -25,6 +28,8 @@ model Link {
   id        String   @id @default(cuid())
   title     String
   url       String
+  /// Which icon to show: instagram, linkedin, whatsapp, website… (see src/lib/platforms.tsx)
+  platform  String   @default("website")
   position  Int      @default(0)
   isActive  Boolean  @default(true)
   clicks    Int      @default(0)
@@ -34,4 +39,32 @@ model Link {
   updatedAt DateTime @updatedAt
 
   @@index([userId, position])
+}
+
+/// A request from the landing page to order a smart card or social media tag.
+model Booking {
+  id        String   @id @default(cuid())
+  product   String
+  quantity  Int      @default(1)
+  name      String
+  phone     String
+  email     String?
+  message   String?
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+/// One-time link for "Forgot password". Only a hash of the token is stored.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
