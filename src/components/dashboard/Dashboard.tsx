@@ -10,6 +10,7 @@ import { LinkList } from "./LinkList";
 import { ProfileForm } from "./ProfileForm";
 import { ShareBar } from "./ShareBar";
 import { CardPanel } from "./CardPanel";
+import { ChangePasswordForm } from "./ChangePasswordForm";
 
 type Props = { initialProfile: DashboardProfile; initialLinks: DashboardLink[]; appUrl: string; isAdmin?: boolean };
 
@@ -55,6 +56,11 @@ export function Dashboard({ initialProfile, initialLinks, appUrl, isAdmin = fals
           <section aria-labelledby="profile-heading" className="space-y-4">
             <h2 id="profile-heading" className="font-display text-2xl font-bold text-primary">Profile</h2>
             <ProfileForm profile={profile} appUrl={appUrl} onSaved={setProfile} />
+          </section>
+
+          <section aria-labelledby="password-heading" className="space-y-4">
+            <h2 id="password-heading" className="font-display text-2xl font-bold text-primary">Change password</h2>
+            <ChangePasswordForm />
           </section>
 
           <section aria-labelledby="card-heading" className="space-y-4">

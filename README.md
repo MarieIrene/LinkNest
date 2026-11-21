@@ -10,6 +10,7 @@ Brand colors: primary `#164E63`, secondary `#5EEAD4` (see `tailwind.config.ts`).
 ## Features
 
 - Sign up and log in (bcrypt-hashed passwords, signed HTTP-only session cookie)
+- Change password from the dashboard (needs the current password; old reset links stop working)
 - Forgot password: one-time reset link by email (via Resend; printed in the terminal when `RESEND_API_KEY` is empty)
 - Claim a username; your page lives at `/your-username`
 - Add, edit, delete, hide/show and reorder links
@@ -97,6 +98,7 @@ src/
 | DELETE | `/api/links/:id` | Delete a link |
 | PUT | `/api/links/reorder` | Save order `{ ids: string[] }` |
 | GET | `/api/profile` | Your profile |
+| POST | `/api/profile/password` | Change password `{ currentPassword, newPassword }` |
 | PATCH | `/api/profile` | Update `{ username?, displayName?, bio?, avatarUrl? }` |
 | GET | `/go/:id` | Public: count a click and redirect |
 | PATCH | `/api/admin/bookings/:id` | Admin: `{ status?, notes? }` |
