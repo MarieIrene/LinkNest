@@ -18,6 +18,8 @@ model User {
   views        Int      @default(0)
   /// Times someone opened the profile by tapping the NFC card (via /c/:id).
   cardTaps     Int      @default(0)
+  /// Set by an admin: hides the public page and card link.
+  suspended    Boolean  @default(false)
   links        Link[]
   resetTokens  PasswordResetToken[]
   createdAt    DateTime @default(now())
@@ -50,10 +52,15 @@ model Booking {
   phone     String
   email     String?
   message   String?
+  /// new, confirmed, paid, ready, delivered or declined (see src/lib/bookings.ts)
   status    String   @default("new")
+  /// Staff notes, e.g. payment reference. Never shown to the customer.
+  notes     String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([createdAt])
+  @@index([status])
 }
 
 /// One-time link for "Forgot password". Only a hash of the token is stored.
