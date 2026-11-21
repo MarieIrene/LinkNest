@@ -5,7 +5,7 @@ import { isUniqueViolation, jsonError, readJson, unauthorized, zodFields } from 
 import { profileSchema } from "@/lib/validations";
 
 const profileSelect = {
-  id: true, email: true, username: true, displayName: true, bio: true, avatarUrl: true, views: true, cardTaps: true,
+  id: true, email: true, username: true, displayName: true, bio: true, avatarUrl: true, views: true, cardTaps: true, suspended: true,
 };
 
 export async function GET() {

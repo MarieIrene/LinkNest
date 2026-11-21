@@ -18,6 +18,7 @@ const getProfile = cache(async (raw: string) => {
       displayName: true,
       bio: true,
       avatarUrl: true,
+      suspended: true,
       links: { where: { isActive: true }, orderBy: { position: "asc" }, select: { id: true, title: true, url: true, platform: true } },
     },
   });
@@ -26,6 +27,7 @@ const getProfile = cache(async (raw: string) => {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const user = await getProfile((await params).username);
   if (!user) return { title: "Page not found" };
+  if (user.suspended) return { title: "Page unavailable", robots: { index: false } };
   const name = user.displayName || user.username;
   // Uploaded photos are data URLs, which link previews can't load.
   const image = user.avatarUrl?.startsWith("https://") ? [user.avatarUrl] : undefined;
@@ -40,6 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function PublicProfilePage({ params }: Props) {
   const user = await getProfile((await params).username);
   if (!user) notFound();
+  if (user.suspended) return <UnavailablePage />;
 
   // Count the visit; a failure here should never block the page.
   await prisma.user.update({ where: { id: user.id }, data: { views: { increment: 1 } } }).catch(() => undefined);
@@ -53,6 +56,16 @@ export default async function PublicProfilePage({ params }: Props) {
         avatarUrl={user.avatarUrl}
         links={user.links}
       />
+    </main>
+  );
+}
+
+function UnavailablePage() {
+  return (
+    <main className="flex min-h-dvh flex-col items-center justify-center bg-primary px-6 text-center text-white">
+      <h1 className="font-display text-3xl font-bold">This page is unavailable</h1>
+      <p className="mt-3 max-w-sm text-white/75">The owner&apos;s LinkNest page has been paused. Please try again later.</p>
+      <a href="/" className="btn-press mt-8">Go to LinkNest</a>
     </main>
   );
 }

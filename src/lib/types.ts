@@ -17,6 +17,7 @@ export type DashboardProfile = {
   avatarUrl: string | null;
   views: number;
   cardTaps: number;
+  suspended: boolean;
 };
 
 export type PublicLink = { id: string; title: string; url: string; platform: string };

@@ -23,6 +23,7 @@ export default async function DashboardPage() {
       avatarUrl: true,
       views: true,
       cardTaps: true,
+      suspended: true,
       links: {
         orderBy: { position: "asc" },
         select: { id: true, title: true, url: true, platform: true, isActive: true, clicks: true, position: true },
