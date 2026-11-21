@@ -25,7 +25,7 @@ export function Dashboard({ initialProfile, initialLinks, appUrl, isAdmin = fals
         <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3">
           <Logo />
           <div className="ml-auto flex items-center gap-1">
-            {isAdmin && <a href="/dashboard/bookings" className="btn-ghost">Bookings</a>}
+            {isAdmin && <a href="/admin" className="btn-primary">Admin panel</a>}
             <a href={`/${profile.username}`} target="_blank" rel="noopener noreferrer" className="btn-ghost">
               View page
             </a>
@@ -38,6 +38,12 @@ export function Dashboard({ initialProfile, initialLinks, appUrl, isAdmin = fals
 
       <main className="mx-auto grid max-w-6xl gap-10 px-4 py-8 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-10">
+          {profile.suspended && (
+            <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-900">
+              <strong>Your page is suspended.</strong> Visitors and card taps see &ldquo;This page is unavailable&rdquo;.
+              Contact Arvash Tech on 0784424423 to restore it.
+            </p>
+          )}
           <ShareBar url={publicUrl} views={profile.views} clicks={totalClicks} taps={profile.cardTaps} />
 
           <section aria-labelledby="links-heading" className="space-y-4">

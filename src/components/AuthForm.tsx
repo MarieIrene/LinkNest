@@ -49,7 +49,7 @@ export function AuthForm({ mode, defaultUsername = "", next }: { mode: Mode; def
     }
 
     const body = isRegister ? current : { email: current.email, password: current.password };
-    const res = await apiRequest(`/api/auth/${mode}`, { method: "POST", body });
+    const res = await apiRequest<{ redirect?: string }>(`/api/auth/${mode}`, { method: "POST", body });
 
     if (!res.ok) {
       setErrors(res.fields);
@@ -57,7 +57,7 @@ export function AuthForm({ mode, defaultUsername = "", next }: { mode: Mode; def
       setPending(false);
       return;
     }
-    router.replace(next ?? "/dashboard");
+    router.replace(next ?? res.data.redirect ?? "/dashboard");
     router.refresh();
   }
 

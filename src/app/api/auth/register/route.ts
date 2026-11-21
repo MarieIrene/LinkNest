@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { attachSession } from "@/lib/auth";
 import { isUniqueViolation, jsonError, readJson, zodFields } from "@/lib/api";
 import { registerSchema } from "@/lib/validations";
+import { isAdminEmail } from "@/lib/site";
 
 export async function POST(req: Request) {
   const parsed = registerSchema.safeParse(await readJson(req));
@@ -28,7 +29,8 @@ export async function POST(req: Request) {
       data: { email, username, displayName: username, passwordHash: await bcrypt.hash(password, 12) },
       select: { id: true },
     });
-    return attachSession(NextResponse.json({ ok: true }, { status: 201 }), user.id);
+    const redirect = isAdminEmail(email) ? "/admin" : "/dashboard";
+    return attachSession(NextResponse.json({ ok: true, redirect }, { status: 201 }), user.id);
   } catch (err) {
     if (isUniqueViolation(err)) return jsonError("That email or username was just taken. Try another.", 409);
     throw err;
