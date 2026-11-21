@@ -20,7 +20,12 @@ Brand colors: primary `#164E63`, secondary `#5EEAD4` (see `tailwind.config.ts`).
   handles and phone numbers are turned into full URLs
 - NFC card link `/c/:id` that survives username changes and counts card taps
 - Landing page with pricing (Business Smart Card 10,000 RWF, Social Media Tag 5,000 RWF) and a booking form;
-  staff listed in `ADMIN_EMAILS` see bookings at `/dashboard/bookings`
+  staff listed in `ADMIN_EMAILS` manage them in the admin panel
+- Admin panel at `/admin` (only for emails in `ADMIN_EMAILS`; admins land there after logging in):
+  - Overview: bookings waiting for a call, revenue from paid orders, users, card taps, orders by step
+  - Bookings: status (New, Confirmed, Paid, Card ready, Delivered, Declined), staff notes, filters, search
+  - Users: search, NFC card link to copy, suspend/restore (hides the public page), send a password reset email,
+    delete with typed confirmation. Admin accounts can't be suspended or deleted from the panel
 - Input validation with Zod on every API route; unsafe URLs such as `javascript:` are rejected
 
 ## Getting started
@@ -94,6 +99,10 @@ src/
 | GET | `/api/profile` | Your profile |
 | PATCH | `/api/profile` | Update `{ username?, displayName?, bio?, avatarUrl? }` |
 | GET | `/go/:id` | Public: count a click and redirect |
+| PATCH | `/api/admin/bookings/:id` | Admin: `{ status?, notes? }` |
+| PATCH | `/api/admin/users/:id` | Admin: `{ suspended }` |
+| DELETE | `/api/admin/users/:id` | Admin: `{ confirmUsername }` |
+| POST | `/api/admin/users/:id/reset-password` | Admin: email the user a reset link |
 | GET | `/c/:userId` | Public: NFC card target. Counts a tap and redirects to the profile |
 | POST | `/api/bookings` | Public: book a card `{ product, quantity, name, phone, email?, message? }` |
 
