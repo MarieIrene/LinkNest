@@ -94,7 +94,6 @@ export function ResetPasswordForm({ token }: { token: string }) {
       return;
     }
     router.replace("/dashboard");
-    router.refresh();
   }
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { apiRequest } from "@/lib/client-api";
 import { useHydrated } from "@/lib/use-hydrated";
@@ -9,8 +9,20 @@ import { PasswordInput } from "./PasswordInput";
 
 type Mode = "login" | "register";
 
-export function AuthForm({ mode, defaultUsername = "", next }: { mode: Mode; defaultUsername?: string; next?: string }) {
+/** Only allow redirects back into this app (never to another site). */
+function safeNext(value: string | null) {
+  return value && value.startsWith("/") && !value.startsWith("//") ? value : undefined;
+}
+
+/**
+ * Login and sign-up form. Reads ?next= and ?username= in the browser, so the pages
+ * themselves can be pre-built and open instantly. Render it inside <Suspense>.
+ */
+export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
+  const params = useSearchParams();
+  const next = safeNext(params.get("next"));
+  const defaultUsername = params.get("username")?.toLowerCase().slice(0, 30) ?? "";
   const [values, setValues] = useState({ email: "", username: defaultUsername, password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -58,7 +70,6 @@ export function AuthForm({ mode, defaultUsername = "", next }: { mode: Mode; def
       return;
     }
     router.replace(next ?? res.data.redirect ?? "/dashboard");
-    router.refresh();
   }
 
   const fieldClass = (key: string) => `field ${errors[key] ? "field-error" : ""}`;

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Avatar } from "./Avatar";
 import { APP_NAME } from "@/lib/site";
 import { PlatformIcon } from "@/lib/platforms";
@@ -45,9 +46,9 @@ export function LinkPage({ username, displayName, bio, avatarUrl, links, mode = 
         <p className="mt-9 text-center text-white/70">No links here yet.</p>
       )}
 
-      <a href="/" className="mt-auto pt-12 text-sm text-white/60 hover:text-white">
+      <Link href="/" className="mt-auto pt-12 text-sm text-white/60 hover:text-white">
         Make your own page with {APP_NAME}
-      </a>
+      </Link>
     </div>
   );
 }

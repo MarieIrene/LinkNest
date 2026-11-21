@@ -1,5 +1,6 @@
 import { cache } from "react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { LinkPage } from "@/components/LinkPage";
@@ -65,7 +66,7 @@ function UnavailablePage() {
     <main className="flex min-h-dvh flex-col items-center justify-center bg-primary px-6 text-center text-white">
       <h1 className="font-display text-3xl font-bold">This page is unavailable</h1>
       <p className="mt-3 max-w-sm text-white/75">The owner&apos;s LinkNest page has been paused. Please try again later.</p>
-      <a href="/" className="btn-press mt-8">Go to LinkNest</a>
+      <Link href="/" className="btn-press mt-8">Go to LinkNest</Link>
     </main>
   );
 }

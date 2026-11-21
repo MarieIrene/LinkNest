@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { LinkPage } from "@/components/LinkPage";
 import { PhoneFrame } from "@/components/PhoneFrame";
@@ -26,7 +27,7 @@ export function Dashboard({ initialProfile, initialLinks, appUrl, isAdmin = fals
         <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3">
           <Logo />
           <div className="ml-auto flex items-center gap-1">
-            {isAdmin && <a href="/admin" className="btn-primary">Admin panel</a>}
+            {isAdmin && <Link href="/admin" className="btn-primary">Admin panel</Link>}
             <a href={`/${profile.username}`} target="_blank" rel="noopener noreferrer" className="btn-ghost">
               View page
             </a>
