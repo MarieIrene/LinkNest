@@ -6,7 +6,7 @@ import { PLATFORM_IDS, getPlatform, toPlatformUrl } from "./platforms";
 export const RESERVED_USERNAMES = new Set([
   "login", "register", "logout", "dashboard", "api", "go", "admin", "settings",
   "about", "help", "terms", "privacy", "icon.svg", "favicon.ico", "_next", "c",
-  "forgot-password", "reset-password",
+  "forgot-password", "reset-password", "offline", "offline.html", "icons", "sw.js", "manifest.webmanifest",
 ]);
 
 export const usernameSchema = z
