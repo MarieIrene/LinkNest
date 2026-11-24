@@ -4,6 +4,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { isAdminEmail } from "@/lib/site";
 import { Avatar } from "@/components/Avatar";
+import { PageHeader } from "@/components/ui";
 import { formatDate } from "@/lib/dates";
 
 export const metadata: Metadata = { title: "Users" };
@@ -60,18 +61,18 @@ export default async function AdminUsersPage({ searchParams }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-bold text-primary">Users</h1>
-          <p className="mt-1 text-ink/65">Look up a customer to copy their card link, help them log in or suspend their page.</p>
-        </div>
-        <form action="/admin/users" className="flex w-full gap-2 sm:w-auto">
-          {filter && <input type="hidden" name="filter" value={filter} />}
-          <label htmlFor="user-search" className="sr-only">Search users</label>
-          <input id="user-search" name="q" defaultValue={q} placeholder="Search name, username or email" className="field sm:w-72" />
-          <button type="submit" className="btn-primary">Search</button>
-        </form>
-      </div>
+      <PageHeader
+        title="Users"
+        description="Look up a customer to copy their card link, help them log in or suspend their page."
+        actions={
+          <form action="/admin/users" className="flex w-full gap-2 sm:w-auto">
+            {filter && <input type="hidden" name="filter" value={filter} />}
+            <label htmlFor="user-search" className="sr-only">Search users</label>
+            <input id="user-search" name="q" defaultValue={q} placeholder="Search name, username or email" className="field min-w-0 sm:w-72" />
+            <button type="submit" className="btn-primary">Search</button>
+          </form>
+        }
+      />
 
       <nav aria-label="Filter users" className="flex gap-2">
         {[
@@ -97,7 +98,25 @@ export default async function AdminUsersPage({ searchParams }: Props) {
       {users.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-line px-5 py-10 text-center text-ink/65">No users match.</p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-line bg-white">
+        <>
+        {/* Phones: one card per user */}
+        <ul className="space-y-3 md:hidden">
+          {users.map((u) => (
+            <li key={u.id}>
+              <Link href={`/admin/users/${u.id}`} className="flex items-center gap-3 rounded-2xl border border-line bg-white p-4 active:bg-paper">
+                <Avatar name={u.displayName || u.username} src={u.avatarUrl} size={44} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold text-ink">{u.displayName || u.username}</p>
+                  <p className="truncate text-sm text-ink/60">@{u.username} · {u.email}</p>
+                  <p className="mt-1 text-xs text-ink/55">{u.views.toLocaleString()} views · {u.cardTaps.toLocaleString()} taps · {u._count.links} links</p>
+                </div>
+                <StatusBadge admin={isAdminEmail(u.email)} suspended={u.suspended} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+        {/* Tablets and computers: table */}
+        <div className="hidden overflow-x-auto rounded-2xl border border-line bg-white md:block">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead className="border-b border-line bg-primary-soft text-primary">
               <tr>
@@ -124,19 +143,14 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                   <td className="px-4 py-3">{u.views.toLocaleString()}</td>
                   <td className="px-4 py-3">{u.cardTaps.toLocaleString()}</td>
                   <td className="px-4 py-3">
-                    {isAdminEmail(u.email) ? (
-                      <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-secondary">Admin</span>
-                    ) : u.suspended ? (
-                      <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800">Suspended</span>
-                    ) : (
-                      <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-900">Active</span>
-                    )}
+                    <StatusBadge admin={isAdminEmail(u.email)} suspended={u.suspended} />
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        </>
       )}
 
       {pages > 1 && (
@@ -148,4 +162,10 @@ export default async function AdminUsersPage({ searchParams }: Props) {
       )}
     </div>
   );
+}
+
+function StatusBadge({ admin, suspended }: { admin: boolean; suspended: boolean }) {
+  if (admin) return <span className="shrink-0 rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-secondary">Admin</span>;
+  if (suspended) return <span className="shrink-0 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800">Suspended</span>;
+  return <span className="shrink-0 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-900">Active</span>;
 }

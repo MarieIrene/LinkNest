@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { BOOKING_STATUSES } from "@/lib/bookings";
 import { PRODUCTS, type ProductId } from "@/lib/products";
 import { BookingCard } from "@/components/admin/BookingCard";
+import { PageHeader } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Bookings" };
 
@@ -52,18 +53,18 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-bold text-primary">Bookings</h1>
-          <p className="mt-1 text-ink/65">Call each new customer, then move the booking along as the order progresses.</p>
-        </div>
-        <form action="/admin/bookings" className="flex w-full gap-2 sm:w-auto">
-          {status && <input type="hidden" name="status" value={status} />}
-          <label htmlFor="booking-search" className="sr-only">Search bookings</label>
-          <input id="booking-search" name="q" defaultValue={q} placeholder="Search name, phone or email" className="field sm:w-72" />
-          <button type="submit" className="btn-primary">Search</button>
-        </form>
-      </div>
+      <PageHeader
+        title="Bookings"
+        description="Call each new customer, then move the booking along as the order progresses."
+        actions={
+          <form action="/admin/bookings" className="flex w-full gap-2 sm:w-auto">
+            {status && <input type="hidden" name="status" value={status} />}
+            <label htmlFor="booking-search" className="sr-only">Search bookings</label>
+            <input id="booking-search" name="q" defaultValue={q} placeholder="Search name, phone or email" className="field min-w-0 sm:w-72" />
+            <button type="submit" className="btn-primary">Search</button>
+          </form>
+        }
+      />
 
       <nav aria-label="Filter by status" className="flex gap-2 overflow-x-auto pb-1">
         {tabs.map((t) => {
