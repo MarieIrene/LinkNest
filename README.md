@@ -14,7 +14,10 @@ Brand colors: primary `#164E63`, secondary `#5EEAD4` (see `tailwind.config.ts`).
 - Forgot password: one-time reset link by email (via Resend; printed in the terminal when `RESEND_API_KEY` is empty)
 - Claim a username; your page lives at `/your-username`
 - Add, edit, delete, hide/show and reorder links
-- Live phone preview in the dashboard
+- Modern dashboard with sections (Overview, Links, Profile, Settings): stat cards, clicks-per-link chart,
+  setup checklist and a live phone preview. Sidebar on computers; top bar + bottom tabs on phones and tablets
+- Installable app (PWA): manifest, home-screen icons, service worker that caches design files and shows
+  an offline page; pages themselves are never cached, so private data stays off the device
 - Page-view and per-link click counting (clicks go through `/go/:id`)
 - Profile: name, username, bio, photo upload (cropped and resized in the browser) or photo link
 - Links by type (Instagram, LinkedIn, WhatsApp, TikTok, email, phone, location…), each shown with its icon;
