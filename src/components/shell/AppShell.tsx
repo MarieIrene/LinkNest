@@ -23,7 +23,7 @@ function isActive(pathname: string, item: NavItem) {
   return item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-function Brand({ area }: { area: Props["area"] }) {
+function Brand({ area, compact = false }: { area: Props["area"]; compact?: boolean }) {
   return (
     <Link href={area === "admin" ? "/admin" : "/dashboard"} className="flex items-center gap-2.5 rounded-lg" aria-label={`${APP_NAME} home`}>
       <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
@@ -31,7 +31,7 @@ function Brand({ area }: { area: Props["area"] }) {
         <rect x="7" y="9" width="18" height="5" rx="2.5" fill="#164E63" />
         <rect x="7" y="18" width="18" height="5" rx="2.5" fill="#164E63" opacity=".55" />
       </svg>
-      <span className="font-display text-lg font-bold tracking-tight">{APP_NAME}</span>
+      <span className={`font-display text-lg font-bold tracking-tight ${compact ? "hidden min-[400px]:inline" : ""}`}>{APP_NAME}</span>
       {area === "admin" && (
         <span className="rounded-md bg-secondary px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-dark">Admin</span>
       )}
@@ -94,15 +94,18 @@ export function AppShell({ area, nav, user, switchTo, children }: Props) {
           <InstallAppButton className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[15px] font-medium text-white/65 hover:bg-white/5 hover:text-white" />
         </div>
 
-        <div className="m-3 flex items-center gap-3 rounded-2xl bg-white/5 p-3">
-          <Avatar name={user.name} src={user.avatarUrl} size={40} />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{user.name}</p>
-            <p className="truncate text-xs text-white/55">{user.email}</p>
+        <div className="m-3 rounded-2xl bg-white/5 p-3">
+          <div className="flex items-center gap-3">
+            <Avatar name={user.name} src={user.avatarUrl} size={40} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold">{user.name}</p>
+              <p className="truncate text-xs text-white/55">{user.email}</p>
+            </div>
           </div>
-          <form action="/api/auth/logout" method="post">
-            <button type="submit" aria-label="Log out" title="Log out" className="rounded-lg p-2 text-white/60 hover:bg-white/10 hover:text-white">
-              <Icon name="logout" size={18} />
+          <form action="/api/auth/logout" method="post" className="mt-3">
+            <button type="submit"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-sm font-semibold text-white/85 transition-colors hover:border-red-300/50 hover:bg-red-500/15 hover:text-white">
+              <Icon name="logout" size={18} /> Log out
             </button>
           </form>
         </div>
@@ -111,8 +114,14 @@ export function AppShell({ area, nav, user, switchTo, children }: Props) {
       {/* ---------- Top bar (phones & tablets) ---------- */}
       <header className="sticky top-0 z-30 border-b border-line bg-paper/90 backdrop-blur lg:hidden">
         <div className="flex h-14 items-center gap-2 px-4 text-primary">
-          <Brand area={area} />
-          <details ref={menuRef} className="group relative ml-auto">
+          <Brand area={area} compact />
+          <form action="/api/auth/logout" method="post" className="ml-auto">
+            <button type="submit"
+              className="flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1.5 text-sm font-semibold text-ink/80 hover:border-red-200 hover:bg-red-50 hover:text-red-700">
+              <Icon name="logout" size={17} /> Log out
+            </button>
+          </form>
+          <details ref={menuRef} className="group relative">
             <summary className="flex cursor-pointer list-none items-center rounded-full p-0.5 ring-primary/30 hover:ring-2 [&::-webkit-details-marker]:hidden">
               <span className="sr-only">Account menu</span>
               <Avatar name={user.name} src={user.avatarUrl} size={34} />
