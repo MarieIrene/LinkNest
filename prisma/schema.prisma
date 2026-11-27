@@ -20,6 +20,16 @@ model User {
   cardTaps     Int      @default(0)
   /// Set by an admin: hides the public page and card link.
   suspended    Boolean  @default(false)
+  /// Contact details shown on the public page and in "Save contact". Empty = hidden.
+  jobTitle     String?
+  company      String?
+  phone        String?
+  whatsapp     String?
+  publicEmail  String?
+  location     String?
+  /// Times someone downloaded this person's contact card (.vcf).
+  contactSaves Int      @default(0)
+  cards        Card[]
   links        Link[]
   resetTokens  PasswordResetToken[]
   createdAt    DateTime @default(now())
@@ -72,6 +82,27 @@ model PasswordResetToken {
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+/// A physical NFC card or tag. Its short code is what gets written onto the chip: /c/CODE.
+/// Cards can exist before they're given to anyone (stock), and can be switched off if lost.
+model Card {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  /// business-card or social-tag (see src/lib/products.ts)
+  type      String    @default("business-card")
+  /// Optional note, e.g. "Matte black, batch 3"
+  label     String?
+  /// active or disabled (lost/stolen/replaced)
+  status    String    @default("active")
+  userId    String?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  taps      Int       @default(0)
+  lastTapAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
 
   @@index([userId])
 }
