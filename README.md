@@ -22,7 +22,14 @@ Brand colors: primary `#164E63`, secondary `#5EEAD4` (see `tailwind.config.ts`).
 - Profile: name, username, bio, photo upload (cropped and resized in the browser) or photo link
 - Links by type (Instagram, LinkedIn, WhatsApp, TikTok, email, phone, location…), each shown with its icon;
   handles and phone numbers are turned into full URLs
-- NFC card link `/c/:id` that survives username changes and counts card taps
+- NFC cards: each physical card has a short code written on the chip (`/c/A7K2QX`). Admins create cards in batches,
+  give them to people, switch off lost ones and see taps per card; owners can report a card lost. Every account
+  also keeps a permanent personal card link (`/c/<user id>`). Tapping opens the owner's profile and counts the tap
+- QR code for every card link (`/c/:code/qr`, SVG for print or `?format=png`) to print on the back of the card
+- Write to card from the browser (Web NFC, Chrome on Android): "Add a record → URL/URI → format → address",
+  optional lock, and a "Check card" read-back; other phones get NFC Tools instructions
+- Contact details (job title, company, phone, WhatsApp, public email, location) with Call / WhatsApp / Email
+  buttons and "Save contact": a vCard (`/:username/contact.vcf`) with photo and social links
 - Landing page with pricing (Business Smart Card 10,000 RWF, Social Media Tag 5,000 RWF) and a booking form;
   staff listed in `ADMIN_EMAILS` manage them in the admin panel
 - Admin panel at `/admin` (only for emails in `ADMIN_EMAILS`; admins land there after logging in):
