@@ -1,13 +1,15 @@
 "use client";
 
 import { createContext, useContext, useState, type Dispatch, type SetStateAction } from "react";
-import type { DashboardLink, DashboardProfile } from "@/lib/types";
+import type { DashboardCard, DashboardLink, DashboardProfile } from "@/lib/types";
 
 type DashboardState = {
   profile: DashboardProfile;
   setProfile: Dispatch<SetStateAction<DashboardProfile>>;
   links: DashboardLink[];
   setLinks: Dispatch<SetStateAction<DashboardLink[]>>;
+  cards: DashboardCard[];
+  setCards: Dispatch<SetStateAction<DashboardCard[]>>;
   appUrl: string;
   isAdmin: boolean;
 };
@@ -20,11 +22,12 @@ const Ctx = createContext<DashboardState | null>(null);
  * the data (and any edits) without reloading.
  */
 export function DashboardProvider({
-  initialProfile, initialLinks, appUrl, isAdmin, children,
-}: { initialProfile: DashboardProfile; initialLinks: DashboardLink[]; appUrl: string; isAdmin: boolean; children: React.ReactNode }) {
+  initialProfile, initialLinks, initialCards, appUrl, isAdmin, children,
+}: { initialProfile: DashboardProfile; initialLinks: DashboardLink[]; initialCards: DashboardCard[]; appUrl: string; isAdmin: boolean; children: React.ReactNode }) {
   const [profile, setProfile] = useState(initialProfile);
   const [links, setLinks] = useState(initialLinks);
-  return <Ctx.Provider value={{ profile, setProfile, links, setLinks, appUrl, isAdmin }}>{children}</Ctx.Provider>;
+  const [cards, setCards] = useState(initialCards);
+  return <Ctx.Provider value={{ profile, setProfile, links, setLinks, cards, setCards, appUrl, isAdmin }}>{children}</Ctx.Provider>;
 }
 
 export function useDashboard() {

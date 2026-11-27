@@ -7,7 +7,7 @@ import { Icon } from "@/components/shell/icons";
 import { BarList } from "@/components/charts/BarList";
 import { useDashboard } from "./DashboardContext";
 import { WithPreview } from "./LivePreview";
-import { CardPanel } from "./CardPanel";
+import { CardSummary } from "./CardPanel";
 
 function useCopy() {
   const [copied, setCopied] = useState(false);
@@ -34,6 +34,8 @@ export function OverviewView() {
   const checklist = [
     { done: Boolean(profile.avatarUrl), label: "Add a profile photo", href: "/dashboard/profile" },
     { done: Boolean(profile.bio), label: "Write a short bio", href: "/dashboard/profile" },
+    { done: Boolean(profile.jobTitle), label: "Add your job title", href: "/dashboard/profile" },
+    { done: Boolean(profile.phone || profile.whatsapp || profile.publicEmail), label: "Add a phone, WhatsApp or email", href: "/dashboard/profile" },
     { done: links.length > 0, label: "Add your first link", href: "/dashboard/links" },
     { done: links.length >= 3, label: "Add at least 3 links", href: "/dashboard/links" },
   ];
@@ -77,9 +79,10 @@ export function OverviewView() {
           </div>
         </section>
 
-        <ul className="grid grid-cols-2 gap-3 sm:gap-4 2xl:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 2xl:grid-cols-5">
           <li><StatCard label="Page views" value={profile.views.toLocaleString()} icon="eye" tone="teal" /></li>
           <li><StatCard label="Card taps" value={profile.cardTaps.toLocaleString()} icon="tap" tone="violet" /></li>
+          <li><StatCard label="Contacts saved" value={profile.contactSaves.toLocaleString()} icon="profile" tone="amber" /></li>
           <li><StatCard label="Link clicks" value={totalClicks.toLocaleString()} icon="click" tone="blue" /></li>
           <li><StatCard label="Active links" value={activeLinks} sub={`of ${links.length}`} icon="links" tone="green" href="/dashboard/links" /></li>
         </ul>
@@ -113,8 +116,9 @@ export function OverviewView() {
               empty="No links yet. Add one and its clicks will show here."
             />
           </Card>
-          <Card id="nfc" title="Your NFC card" description="The link written onto your card or tag">
-            <CardPanel cardUrl={`${appUrl}/c/${profile.id}`} />
+          <Card id="nfc" title="Your NFC card" description="What happens when someone taps your card"
+            action={<Link href="/dashboard/card" className="text-sm font-medium text-primary hover:underline">Manage</Link>}>
+            <CardSummary />
           </Card>
         </div>
       </WithPreview>

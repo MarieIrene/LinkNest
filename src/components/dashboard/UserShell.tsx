@@ -7,6 +7,7 @@ const nav: NavItem[] = [
   { href: "/dashboard", label: "Overview", icon: "home", exact: true },
   { href: "/dashboard/links", label: "Links", icon: "links" },
   { href: "/dashboard/profile", label: "Profile", icon: "profile" },
+  { href: "/dashboard/card", label: "Card", icon: "card" },
   { href: "/dashboard/settings", label: "Settings", icon: "settings" },
 ];
 
