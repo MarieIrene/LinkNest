@@ -22,7 +22,7 @@ export function toInternational(phone: string) {
 export const telHref = (phone: string) => `tel:${toInternational(phone)}`;
 export const whatsappHref = (phone: string) => `https://wa.me/${toInternational(phone).replace(/^\+/, "")}`;
 
-/** "CEO at Amani Group", "CEO" or "Amani Group". */
+/** "CEO at Arvash Tech", "CEO" or "Arvash Tech". */
 export function roleLine(c: ContactInfo) {
   const title = c.jobTitle?.trim();
   const company = c.company?.trim();

@@ -151,7 +151,7 @@ export function ProfileForm({ profile, appUrl, onSaved }: Props) {
         <div className="grid gap-5 sm:grid-cols-2">
           {([
             { key: "jobTitle", label: "Job title / profession", placeholder: "e.g. CEO, Photographer", type: "text", auto: "organization-title" },
-            { key: "company", label: "Company", placeholder: "e.g. Amani Group Ltd", type: "text", auto: "organization" },
+            { key: "company", label: "Company", placeholder: "e.g. Arvash Tech", type: "text", auto: "organization" },
             { key: "phone", label: "Phone (for calls)", placeholder: "0788 000 000", type: "tel", auto: "tel" },
             { key: "whatsapp", label: "WhatsApp number", placeholder: "0788 000 000", type: "tel", auto: "tel" },
             { key: "publicEmail", label: "Email to show", placeholder: "you@company.com", type: "email", auto: "email" },
