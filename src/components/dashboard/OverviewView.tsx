@@ -95,7 +95,7 @@ export function OverviewView() {
             <ul className="grid gap-2 sm:grid-cols-2">
               {checklist.map((c) => (
                 <li key={c.label}>
-                  <Link href={c.href} className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 transition ${c.done ? "border-transparent bg-paper text-ink/50 line-through" : "border-line hover:border-primary/40"}`}>
+                  <Link href={c.href} className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 transition ${c.done ? "border-emerald-200 bg-emerald-50 font-medium text-ink" : "border-line hover:border-primary/40"}`}>
                     <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${c.done ? "bg-emerald-500 text-white" : "border-2 border-line"}`}>
                       {c.done && <Icon name="check" size={14} />}
                     </span>
