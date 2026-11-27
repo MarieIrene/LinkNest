@@ -102,6 +102,7 @@ export default async function AdminBookingsPage({ searchParams }: Props) {
               key={b.id}
               booking={{
                 id: b.id,
+                product: b.product,
                 productName: PRODUCTS[b.product as ProductId]?.name ?? b.product,
                 price: PRODUCTS[b.product as ProductId]?.price ?? 0,
                 quantity: b.quantity,

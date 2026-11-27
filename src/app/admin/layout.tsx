@@ -19,6 +19,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       nav={[
         { href: "/admin", label: "Overview", icon: "grid", exact: true },
         { href: "/admin/bookings", label: "Bookings", icon: "bookings", badge: newBookings },
+        { href: "/admin/cards", label: "Cards", icon: "card" },
         { href: "/admin/users", label: "Users", icon: "users" },
       ]}
       user={{ name: admin.displayName || admin.username, email: admin.email, avatarUrl: me?.avatarUrl }}

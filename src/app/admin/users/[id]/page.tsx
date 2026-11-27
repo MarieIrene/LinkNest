@@ -10,6 +10,9 @@ import { PlatformIcon } from "@/lib/platforms";
 import { Avatar } from "@/components/Avatar";
 import { formatDate } from "@/lib/dates";
 import { CopyButton, UserActions } from "@/components/admin/UserActions";
+import { CreateCardsForm } from "@/components/cards/CardForms";
+import { CardStatusBadge } from "@/components/cards/CardBits";
+import { roleLine } from "@/lib/contact";
 
 export const metadata: Metadata = { title: "User" };
 
@@ -23,7 +26,9 @@ export default async function AdminUserPage({ params }: Props) {
       where: { id },
       select: {
         id: true, email: true, username: true, displayName: true, bio: true, avatarUrl: true,
-        views: true, cardTaps: true, suspended: true, createdAt: true,
+        views: true, cardTaps: true, suspended: true, createdAt: true, contactSaves: true,
+        jobTitle: true, company: true, phone: true, whatsapp: true, publicEmail: true, location: true,
+        cards: { orderBy: { createdAt: "desc" }, select: { id: true, code: true, type: true, status: true, taps: true, lastTapAt: true } },
         links: { orderBy: { position: "asc" }, select: { id: true, title: true, url: true, platform: true, isActive: true, clicks: true } },
       },
     }),
@@ -54,6 +59,12 @@ export default async function AdminUserPage({ params }: Props) {
             {user.suspended && <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-800">Suspended</span>}
           </div>
           <p className="text-ink/65">@{user.username} · {user.email}</p>
+          {roleLine(user) && <p className="mt-1 font-medium text-ink/80">{roleLine(user)}</p>}
+          {(user.phone || user.whatsapp || user.publicEmail || user.location) && (
+            <p className="mt-1 text-sm text-ink/60">
+              {[user.phone && `Phone ${user.phone}`, user.whatsapp && `WhatsApp ${user.whatsapp}`, user.publicEmail, user.location].filter(Boolean).join(" · ")}
+            </p>
+          )}
           {user.bio && <p className="mt-2 max-w-[60ch] text-ink/80">{user.bio}</p>}
           <p className="mt-2 text-sm text-ink/55">Joined {formatDate(user.createdAt, "long")}</p>
         </div>
@@ -66,11 +77,12 @@ export default async function AdminUserPage({ params }: Props) {
         </p>
       )}
 
-      <ul className="grid gap-4 sm:grid-cols-3">
+      <ul className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
           { label: "Page views", value: user.views },
           { label: "Card taps", value: user.cardTaps },
           { label: "Link clicks", value: totalClicks },
+          { label: "Contacts saved", value: user.contactSaves },
         ].map((s) => (
           <li key={s.label} className="rounded-2xl border border-line bg-white p-5">
             <p className="text-sm text-ink/65">{s.label}</p>
@@ -79,9 +91,33 @@ export default async function AdminUserPage({ params }: Props) {
         ))}
       </ul>
 
+      <section aria-labelledby="cards-heading" className="panel space-y-4">
+        <h2 id="cards-heading" className="font-display text-xl font-bold text-primary">Cards ({user.cards.length})</h2>
+        {user.cards.length > 0 ? (
+          <ul className="divide-y divide-line rounded-xl border border-line">
+            {user.cards.map((c) => (
+              <li key={c.id}>
+                <Link href={`/admin/cards/${c.id}`} className="flex flex-wrap items-center gap-3 px-4 py-3 hover:bg-paper">
+                  <span className="font-mono text-lg font-bold tracking-[0.2em] text-ink">{c.code}</span>
+                  <span className="text-sm text-ink/60">{PRODUCTS[c.type as ProductId]?.name ?? c.type}</span>
+                  <span className="ml-auto text-sm text-ink/55">{c.taps} taps</span>
+                  <CardStatusBadge status={c.status} assigned />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-ink/60">No physical cards linked yet.</p>
+        )}
+        <details className="rounded-xl border border-line p-4">
+          <summary className="cursor-pointer font-semibold text-primary">Make a card for this person</summary>
+          <div className="mt-4"><CreateCardsForm lockedAssignTo={user.username} /></div>
+        </details>
+      </section>
+
       <section aria-labelledby="card-heading" className="panel space-y-3">
-        <h2 id="card-heading" className="font-display text-xl font-bold text-primary">NFC card link</h2>
-        <p className="text-ink/70">Write this link onto the customer&apos;s card or tag. It keeps working if they change their username.</p>
+        <h2 id="card-heading" className="font-display text-xl font-bold text-primary">Personal card link</h2>
+        <p className="text-ink/70">Every account also has this permanent link. Prefer a card from &ldquo;Cards&rdquo; above, so a lost card can be switched off on its own.</p>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <code className="min-w-0 flex-1 truncate rounded-xl border border-line bg-paper px-4 py-2.5 text-sm text-primary">{card}</code>
           <CopyButton text={card} label="Copy card link" />

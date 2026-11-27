@@ -7,6 +7,7 @@ import { formatDateTime as when } from "@/lib/dates";
 
 export type AdminBooking = {
   id: string;
+  product: string;
   productName: string;
   price: number;
   quantity: number;
@@ -71,6 +72,12 @@ export function BookingCard({ booking: initial }: { booking: AdminBooking }) {
           {booking.email && (
             <a href={`mailto:${booking.email}`} className="btn-ghost border border-line px-4 py-2 text-sm">Email</a>
           )}
+          <a
+            href={`/admin/cards?type=${booking.product}&quantity=${booking.quantity}${booking.email ? `&assign=${encodeURIComponent(booking.email)}` : ""}#new-cards`}
+            className="btn-ghost border border-line px-4 py-2 text-sm"
+          >
+            Make cards for this order
+          </a>
         </div>
       </div>
 
