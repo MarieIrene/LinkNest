@@ -23,3 +23,10 @@ export async function requireAdminPage(from = "/admin") {
   if (!admin) notFound();
   return admin;
 }
+
+/** Finds a user by username (with or without @) or by login email. */
+export async function findUserByHandle(handle: string) {
+  const h = handle.trim().toLowerCase().replace(/^@/, "");
+  if (!h) return null;
+  return prisma.user.findFirst({ where: { OR: [{ username: h }, { email: h }] }, select: { id: true, username: true } });
+}
