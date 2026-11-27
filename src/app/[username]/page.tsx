@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { LinkPage } from "@/components/LinkPage";
+import { roleLine } from "@/lib/contact";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ const getProfile = cache(async (raw: string) => {
       bio: true,
       avatarUrl: true,
       suspended: true,
+      jobTitle: true, company: true, phone: true, whatsapp: true, publicEmail: true, location: true,
       links: { where: { isActive: true }, orderBy: { position: "asc" }, select: { id: true, title: true, url: true, platform: true } },
     },
   });
@@ -35,8 +37,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // This title and description are what phones show when someone taps the NFC card.
   return {
     title: { absolute: name },
-    description: user.bio ?? `Contact details and links for ${name}.`,
-    openGraph: { title: name, description: user.bio ?? undefined, images: image, type: "profile" },
+    description: [roleLine(user), user.bio].filter(Boolean).join(" · ") || `Contact details and links for ${name}.`,
+    openGraph: { title: name, description: [roleLine(user), user.bio].filter(Boolean).join(" · ") || undefined, images: image, type: "profile" },
   };
 }
 
@@ -56,6 +58,7 @@ export default async function PublicProfilePage({ params }: Props) {
         bio={user.bio}
         avatarUrl={user.avatarUrl}
         links={user.links}
+        contact={user}
       />
     </main>
   );

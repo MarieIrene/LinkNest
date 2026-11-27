@@ -6,7 +6,7 @@ import { PLATFORM_IDS, getPlatform, toPlatformUrl } from "./platforms";
 export const RESERVED_USERNAMES = new Set([
   "login", "register", "logout", "dashboard", "api", "go", "admin", "settings",
   "about", "help", "terms", "privacy", "icon.svg", "favicon.ico", "_next", "c",
-  "forgot-password", "reset-password", "offline", "offline.html", "icons", "sw.js", "manifest.webmanifest",
+  "forgot-password", "reset-password", "offline", "offline.html", "icons", "card", "sw.js", "manifest.webmanifest",
 ]);
 
 export const usernameSchema = z
@@ -113,8 +113,24 @@ export const reorderSchema = z.object({
   ids: z.array(z.string().min(1)).max(500),
 });
 
+const optionalText = (max: number, label: string) =>
+  z.string().trim().max(max, `Keep the ${label} under ${max} characters.`).optional();
+
+const optionalPhone = z
+  .string()
+  .trim()
+  .max(30)
+  .refine((v) => v === "" || /^\+?[\d\s()-]{9,}$/.test(v), "Enter a full phone number, like 0788 000 000 or +250 788 000 000.")
+  .optional();
+
 export const profileSchema = z.object({
   username: usernameSchema.optional(),
+  jobTitle: optionalText(80, "job title"),
+  company: optionalText(80, "company name"),
+  phone: optionalPhone,
+  whatsapp: optionalPhone,
+  publicEmail: z.union([z.literal(""), z.string().trim().toLowerCase().email("Enter a valid email address.")]).optional(),
+  location: optionalText(100, "location"),
   displayName: z.string().trim().max(60, "Keep your name under 60 characters.").optional(),
   bio: z.string().trim().max(160, "Keep your bio under 160 characters.").optional(),
   avatarUrl: z

@@ -25,6 +25,7 @@ export function LivePreview() {
             bio={profile.bio}
             avatarUrl={profile.avatarUrl}
             links={links.filter((l) => l.isActive)}
+            contact={profile}
           />
         </PhoneFrame>
       </div>

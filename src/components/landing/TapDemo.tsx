@@ -41,7 +41,7 @@ export function TapDemo() {
           {/* Opened profile */}
           <div className="tap-profile absolute inset-0 z-10 overflow-hidden bg-primary">
             <div inert>
-              <LinkPage {...sampleProfile} links={sampleProfile.links.slice(0, 4)} mode="preview" />
+              <LinkPage {...sampleProfile} links={sampleProfile.links.slice(0, 3)} mode="preview" />
             </div>
           </div>
         </div>

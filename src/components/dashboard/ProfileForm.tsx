@@ -13,6 +13,12 @@ export function ProfileForm({ profile, appUrl, onSaved }: Props) {
     username: profile.username,
     bio: profile.bio ?? "",
     avatarUrl: profile.avatarUrl ?? "",
+    jobTitle: profile.jobTitle ?? "",
+    company: profile.company ?? "",
+    phone: profile.phone ?? "",
+    whatsapp: profile.whatsapp ?? "",
+    publicEmail: profile.publicEmail ?? "",
+    location: profile.location ?? "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
@@ -133,6 +139,37 @@ export function ProfileForm({ profile, appUrl, onSaved }: Props) {
             className="field mt-2" />
         </details>
       </div>
+
+      <fieldset className="space-y-5 border-t border-line pt-5">
+        <legend className="sr-only">Contact details</legend>
+        <div>
+          <h3 className="font-display text-lg font-bold text-ink">Contact details</h3>
+          <p className="mt-0.5 text-sm text-ink/60">
+            Shown at the top of your page and saved into people&apos;s phones with &ldquo;Save contact&rdquo;. Leave a box empty to keep it private.
+          </p>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          {([
+            { key: "jobTitle", label: "Job title / profession", placeholder: "e.g. CEO, Photographer", type: "text", auto: "organization-title" },
+            { key: "company", label: "Company", placeholder: "e.g. Amani Group Ltd", type: "text", auto: "organization" },
+            { key: "phone", label: "Phone (for calls)", placeholder: "0788 000 000", type: "tel", auto: "tel" },
+            { key: "whatsapp", label: "WhatsApp number", placeholder: "0788 000 000", type: "tel", auto: "tel" },
+            { key: "publicEmail", label: "Email to show", placeholder: "you@company.com", type: "email", auto: "email" },
+            { key: "location", label: "Location", placeholder: "e.g. Kigali, Rwanda", type: "text", auto: "address-level2" },
+          ] as const).map((f) => (
+            <div key={f.key}>
+              <label htmlFor={`contact-${f.key}`} className="label">{f.label}</label>
+              <input id={`contact-${f.key}`} type={f.type} autoComplete={f.auto} value={values[f.key]} onChange={update(f.key)}
+                placeholder={f.placeholder} spellCheck={f.type === "text"}
+                className={`field ${errors[f.key] ? "field-error" : ""}`} aria-invalid={Boolean(errors[f.key])} />
+              {errors[f.key] && <p className="error-text">{errors[f.key]}</p>}
+            </div>
+          ))}
+        </div>
+        <p className="text-sm text-ink/55">
+          Tip: your login email stays private. Only the &ldquo;Email to show&rdquo; appears on your page.
+        </p>
+      </fieldset>
 
       {formError && <p role="alert" className="error-text">{formError}</p>}
 

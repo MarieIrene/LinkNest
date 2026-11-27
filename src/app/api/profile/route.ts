@@ -6,6 +6,7 @@ import { profileSchema } from "@/lib/validations";
 
 const profileSelect = {
   id: true, email: true, username: true, displayName: true, bio: true, avatarUrl: true, views: true, cardTaps: true, suspended: true,
+  jobTitle: true, company: true, phone: true, whatsapp: true, publicEmail: true, location: true, contactSaves: true,
 };
 
 export async function GET() {
@@ -24,7 +25,7 @@ export async function PATCH(req: Request) {
   if (!parsed.success) {
     return jsonError("Check the highlighted fields.", 400, zodFields(parsed.error));
   }
-  const { username, displayName, bio, avatarUrl } = parsed.data;
+  const { username, displayName, bio, avatarUrl, ...contact } = parsed.data;
 
   if (username) {
     const taken = await prisma.user.findFirst({
@@ -42,6 +43,8 @@ export async function PATCH(req: Request) {
         displayName: displayName === undefined ? undefined : displayName || null,
         bio: bio === undefined ? undefined : bio || null,
         avatarUrl: avatarUrl === undefined ? undefined : avatarUrl || null,
+        // Empty contact fields are stored as "not set", which hides them on the public page.
+        ...Object.fromEntries(Object.entries(contact).map(([k, v]) => [k, v === undefined ? undefined : v || null])),
       },
       select: profileSelect,
     });
